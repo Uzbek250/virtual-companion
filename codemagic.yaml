@@ -5,7 +5,7 @@ workflows:
     instance_type: mac_mini_m2
     environment:
       flutter: stable
-      # GEMINI_API_KEY va GOOGLE_CLOUD_API_KEY CodeMagic UI'da
+      # GEMINI_API_KEY va GEMINI_API_KEY_2 CodeMagic UI'da
       # (App settings > Environment variables > "secure" belgisi bilan) qo'shilishi kerak —
       # bu yerga ochiq yozilmaydi.
       groups:
@@ -21,7 +21,6 @@ workflows:
         script: |
           echo "GEMINI_API_KEY=$GEMINI_API_KEY" > .env
           echo "GEMINI_API_KEY_2=$GEMINI_API_KEY_2" >> .env
-          echo "GOOGLE_CLOUD_API_KEY=$GOOGLE_CLOUD_API_KEY" >> .env
 
       # envied (Env klassi) va riverpod_generator .g.dart fayllarini
       # shu bosqichda generatsiya qiladi — bu fayllar repo'da yo'q,

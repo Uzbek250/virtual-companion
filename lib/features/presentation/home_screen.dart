@@ -2,8 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:virtual_hamroh/features/presentation/animation_screen.dart';
-import 'package:virtual_hamroh/features/presentation/speech_to_text.dart';
-import 'package:virtual_hamroh/features/presentation/text_to_speech_cloud.dart';
+import 'package:virtual_hamroh/features/presentation/live_conversation_button.dart';
 import 'package:virtual_hamroh/features/providers/companion_state_controller.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -20,9 +19,7 @@ class HomeScreen extends ConsumerWidget {
           // Kun vaqtiga mos fon gradienti
           Positioned.fill(child: _RoomBackground()),
 
-          TextToSpeechCloud(
-            child: AnimationScreen(),
-          ),
+          AnimationScreen(),
 
           // Yuqori: kayfiyat/energiya/qiziqish/uyqu — glass status panel
           Positioned(
@@ -43,12 +40,12 @@ class HomeScreen extends ConsumerWidget {
             ),
           ),
 
-          // Ovoz bilan gaplashish tugmasi
+          // Ovoz bilan gaplashish tugmasi (Live API)
           Positioned(
             bottom: 100,
             left: 0,
             right: 0,
-            child: Center(child: STTWidget()),
+            child: Center(child: LiveConversationButton()),
           ),
         ],
       ),

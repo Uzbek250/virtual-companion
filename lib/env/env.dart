@@ -14,10 +14,6 @@ abstract class Env {
       obfuscate: true) // Gemini AI Brain — 2-kalit (limitni almashtirish uchun)
   static final String geminiApiKey2 = _Env.geminiApiKey2;
 
-  @EnviedField(
-      varName: 'GOOGLE_CLOUD_API_KEY', obfuscate: true) // Text-to-Speech uchun
-  static final String googleCloudKey = _Env.googleCloudKey;
-
   /// Ikkala Gemini kaliti orasida almashtirish uchun ro'yxat.
   static List<String> get geminiApiKeys => [geminiApiKey1, geminiApiKey2];
 }
