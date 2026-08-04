@@ -20,6 +20,7 @@ workflows:
       - name: Create .env file
         script: |
           echo "GEMINI_API_KEY=$GEMINI_API_KEY" > .env
+          echo "GEMINI_API_KEY_2=$GEMINI_API_KEY_2" >> .env
           echo "GOOGLE_CLOUD_API_KEY=$GOOGLE_CLOUD_API_KEY" >> .env
 
       # envied (Env klassi) va riverpod_generator .g.dart fayllarini

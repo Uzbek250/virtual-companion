@@ -21,6 +21,17 @@ class GeminiRepository {
 
   final List<ChatTurn> _history = [];
 
+  // Qaysi kalit navbatda ekanini eslab turadi — so'rovlar ikkala kalit
+  // orasida almashtiriladi (round-robin), shunday qilib ikkalasining
+  // kunlik bepul limiti birgalikda ishlatiladi.
+  int _keyIndex = 0;
+
+  String get _currentKey => Env.geminiApiKeys[_keyIndex % Env.geminiApiKeys.length];
+
+  void _switchToNextKey() {
+    _keyIndex = (_keyIndex + 1) % Env.geminiApiKeys.length;
+  }
+
   /// Mimi'ning xarakteri. userName, mood va memories keyinchalik backenddan
   /// (Memory Engine, Emotion Engine) dinamik keladi — hozircha shu funksiya
   /// orqali oson almashtiriladigan qilib ajratilgan.
@@ -94,17 +105,11 @@ Qoidalar:
           }),
     ];
 
-    final response = await http.post(
-      Uri.parse('$_baseUrl?key=${Env.geminiApiKey}'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'contents': contents,
-        'generationConfig': {
-          'temperature': 1.0,
-          'maxOutputTokens': 200,
-        },
-      }),
-    );
+    // Har bir yangi xabarda navbatdagi kalitga o'tamiz — ikkala kalit
+    // teng taqsimlangan holda ishlatiladi.
+    _switchToNextKey();
+
+    final response = await _postWithFallback(contents);
 
     if (response.statusCode != 200) {
       throw Exception('Gemini xatolik qaytardi: ${response.statusCode} ${response.body}');
@@ -116,6 +121,37 @@ Qoidalar:
 
     _history.add(ChatTurn(role: 'model', text: reply));
     return reply;
+  }
+
+  /// So'rovni joriy kalit bilan yuboradi. Agar kunlik/daqiqalik limitga
+  /// uchrasa (429) yoki kalit yaroqsiz bo'lsa (403), boshqa kalitga
+  /// o'tib bitta marta qayta urinadi.
+  Future<http.Response> _postWithFallback(List<Map<String, Object>> contents) async {
+    final firstAttemptKey = _currentKey;
+    final response = await _post(contents, firstAttemptKey);
+
+    final hitLimitOrInvalidKey = response.statusCode == 429 || response.statusCode == 403;
+    if (hitLimitOrInvalidKey && Env.geminiApiKeys.length > 1) {
+      _switchToNextKey();
+      if (_currentKey != firstAttemptKey) {
+        return _post(contents, _currentKey);
+      }
+    }
+    return response;
+  }
+
+  Future<http.Response> _post(List<Map<String, Object>> contents, String apiKey) {
+    return http.post(
+      Uri.parse('$_baseUrl?key=$apiKey'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'contents': contents,
+        'generationConfig': {
+          'temperature': 1.0,
+          'maxOutputTokens': 200,
+        },
+      }),
+    );
   }
 
   void clearHistory() => _history.clear();
